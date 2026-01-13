@@ -3,10 +3,30 @@ import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { LogOut, User, LayoutDashboard } from 'lucide-react';
 import toast, { Toaster } from 'react-hot-toast';
+import { userService } from '../services/userService';
+import { useEffect } from 'react';
 
+/**
+ * Main application layout wrapper.
+ * Provides the persistent navigation bar and handles user session synchronization.
+ * 
+ * @param {Object} props
+ * @param {React.ReactNode} props.children - The page content to display
+ */
 export default function Layout({ children }) {
     const { currentUser, logout } = useAuth();
     const navigate = useNavigate();
+
+    /**
+     * Effect hook to ensure the current authenticated user exists in the Firestore 'users' collection.
+     * This acts as a self-healing mechanism for older accounts created before the user directory was implemented.
+     */
+    useEffect(() => {
+        if (currentUser) {
+            userService.createUserDocument(currentUser.uid, currentUser.email)
+                .catch(err => console.error("Failed to sync user to directory", err));
+        }
+    }, [currentUser]);
 
     async function handleLogout() {
         try {

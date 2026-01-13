@@ -18,6 +18,13 @@ const STATUS_COLORS = {
     'Done': 'bg-emerald-50 text-emerald-700 border-emerald-200'
 };
 
+/**
+ * Display component for a single issue.
+ * Handles status updates and visualizes priority/status.
+ * 
+ * @param {Object} props
+ * @param {Object} props.issue - The issue data object
+ */
 export default function IssueCard({ issue }) {
 
     async function handleStatusChange(e) {

@@ -1,9 +1,10 @@
 /**
- * Detects if a new issue title is similar to any existing issues.
- * Logic: Splits into lowercase words. If 2 or more words match, it's similar.
- * @param {string} newTitle - The title of the new issue
- * @param {Array} existingIssues - List of existing issues
- * @returns {Array} - Array of similar issues found
+ * Detects if a new issue title is similar to any existing issues to prevent duplicates.
+ * Algorithm: Tokenizes title into matching lowercase words.
+ * 
+ * @param {string} newTitle - The title of the new issue.
+ * @param {Array} existingIssues - List of all existing issues to check against.
+ * @returns {Array} - Array of potential duplicate issues found (matching >= 2 words).
  */
 export function findSimilarIssues(newTitle, existingIssues) {
     if (!newTitle || !existingIssues) return [];
@@ -12,7 +13,7 @@ export function findSimilarIssues(newTitle, existingIssues) {
         return str.toLowerCase()
             .replace(/[^\w\s]/g, '') // Remove punctuation
             .split(/\s+/)
-            .filter(w => w.length > 2); // Ignore very short words like 'a', 'to', 'in'
+            .filter(w => w.length > 2); // Ignore very short words
     };
 
     const newWords = new Set(getWords(newTitle));
@@ -32,21 +33,20 @@ export function findSimilarIssues(newTitle, existingIssues) {
 }
 
 /**
- * Validates status transition.
- * Rule: Open -> In Progress -> Done
+ * Validates if an issue status transition is allowed based on business rules.
+ * Workflow: Open -> In Progress -> Done.
+ * 
+ * @param {string} currentStatus - The current status of the issue.
+ * @param {string} newStatus - The target status.
+ * @returns {boolean} True if the transition is allowed, false otherwise.
  */
 export function isValidStatusTransition(currentStatus, newStatus) {
-    const rules = {
-        'Open': ['In Progress'],
-        'In Progress': ['Done', 'Open'], // Allow going back to Open? "It must go Open -> In Progress -> Done". Usually backward is implicitly allowed, but strict rule on DONE means Open->Done is forbidden.
-        'Done': ['In Progress'] // Reopen
-    };
-
     // If staying same, true
     if (currentStatus === newStatus) return true;
 
-    // Strict check for Open -> Done
+    // Strict check for Open -> Done (Must go through In Progress)
     if (currentStatus === 'Open' && newStatus === 'Done') return false;
 
+    // All other transitions implicitly allowed (including moving backwards)
     return true;
 }

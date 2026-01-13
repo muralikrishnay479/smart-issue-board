@@ -5,6 +5,10 @@ import { motion } from 'framer-motion';
 import { Mail, Lock, Loader2 } from 'lucide-react';
 import toast, { Toaster } from 'react-hot-toast';
 
+/**
+ * Login Page.
+ * Authenticates existing users using email and password.
+ */
 export default function Login() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -48,7 +52,7 @@ export default function Login() {
                                 <input
                                     type="email"
                                     required
-                                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all outline-none"
+                                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all outline-none text-gray-900"
                                     placeholder="you@example.com"
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
@@ -63,7 +67,7 @@ export default function Login() {
                                 <input
                                     type="password"
                                     required
-                                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all outline-none"
+                                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all outline-none text-gray-900"
                                     placeholder="••••••••"
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}

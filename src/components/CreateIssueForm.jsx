@@ -6,6 +6,19 @@ import { Plus, X, AlertTriangle, Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import toast from 'react-hot-toast';
 
+import { userService } from '../services/userService';
+
+/**
+ * Enhanced form component for creating new issues.
+ * Features:
+ * - Real-time duplicate detection (Similar Issue Warning)
+ * - Autocomplete for "Assigned To" field using Firestore user directory
+ * - Priority selection
+ * 
+ * @param {Object} props
+ * @param {Array} props.existingIssues - List of current issues for duplicate checking
+ * @param {Function} props.onClose - Callback to close the modal/form
+ */
 export default function CreateIssueForm({ existingIssues, onClose }) {
     const { currentUser } = useAuth();
     const [formData, setFormData] = useState({
@@ -17,11 +30,21 @@ export default function CreateIssueForm({ existingIssues, onClose }) {
     const [showWarning, setShowWarning] = useState(false);
     const [similarIssues, setSimilarIssues] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [availableUsers, setAvailableUsers] = useState([]);
+    const [isUserListOpen, setIsUserListOpen] = useState(false);
+
+    React.useEffect(() => {
+        async function fetchUsers() {
+            const users = await userService.getAllUsers();
+            setAvailableUsers(users);
+        }
+        fetchUsers();
+    }, []);
 
     async function handleSubmit(e) {
         e.preventDefault();
 
-        // 1. Check for similar issues first
+        // Step 1: Check for potential duplicates before proceeding
         if (!showWarning) {
             const similar = findSimilarIssues(formData.title, existingIssues);
             if (similar.length > 0) {
@@ -31,7 +54,7 @@ export default function CreateIssueForm({ existingIssues, onClose }) {
             }
         }
 
-        // 2. Proceed to create
+        // Step 2: Create valid issue if no duplicates or user ignored warning
         await createIssue();
     }
 
@@ -112,7 +135,7 @@ export default function CreateIssueForm({ existingIssues, onClose }) {
                     <input
                         type="text"
                         required
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all text-gray-900"
                         value={formData.title}
                         onChange={e => setFormData({ ...formData, title: e.target.value })}
                         placeholder="e.g., Fix login button"
@@ -124,7 +147,7 @@ export default function CreateIssueForm({ existingIssues, onClose }) {
                     <textarea
                         required
                         rows="3"
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all text-gray-900"
                         value={formData.description}
                         onChange={e => setFormData({ ...formData, description: e.target.value })}
                         placeholder="Describe the issue..."
@@ -135,7 +158,7 @@ export default function CreateIssueForm({ existingIssues, onClose }) {
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">Priority</label>
                         <select
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none text-gray-900"
                             value={formData.priority}
                             onChange={e => setFormData({ ...formData, priority: e.target.value })}
                         >
@@ -147,14 +170,43 @@ export default function CreateIssueForm({ existingIssues, onClose }) {
 
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">Assigned To (Email)</label>
-                        <input
-                            type="email"
-                            required
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none"
-                            placeholder="developer@example.com"
-                            value={formData.assignedTo}
-                            onChange={e => setFormData({ ...formData, assignedTo: e.target.value })}
-                        />
+                        <div className="relative">
+                            <input
+                                type="email"
+                                required
+                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none text-gray-900"
+                                placeholder="developer@example.com"
+                                value={formData.assignedTo}
+                                onChange={(e) => {
+                                    setFormData({ ...formData, assignedTo: e.target.value });
+                                    setIsUserListOpen(true);
+                                }}
+                                onFocus={() => setIsUserListOpen(true)}
+                                onBlur={() => setTimeout(() => setIsUserListOpen(false), 200)} // Delay to allow click
+                            />
+                            {/* Autocomplete Dropdown List */}
+                            {isUserListOpen && availableUsers.some(u => u.email.toLowerCase().includes(formData.assignedTo.toLowerCase())) && (
+                                <div
+                                    className="absolute z-10 w-full mt-1 bg-white shadow-lg max-h-20 overflow-auto rounded-md border border-gray-200 text-sm"
+                                    onMouseDown={(e) => e.preventDefault()} // Prevent input blur to ensure click registers
+                                >
+                                    {availableUsers
+                                        .filter(u => u.email.toLowerCase().includes(formData.assignedTo.toLowerCase()))
+                                        .map(user => (
+                                            <div
+                                                key={user.uid}
+                                                className="px-3 py-2 cursor-pointer hover:bg-gray-100"
+                                                onClick={() => {
+                                                    setFormData({ ...formData, assignedTo: user.email });
+                                                    setIsUserListOpen(false);
+                                                }}
+                                            >
+                                                {user.email}
+                                            </div>
+                                        ))}
+                                </div>
+                            )}
+                        </div>
                     </div>
                 </div>
 

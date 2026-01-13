@@ -6,12 +6,16 @@ import { issueService } from '../services/issueService';
 import { Plus, Filter, Search } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
+/**
+ * Dashboard Page.
+ * The central hub of the application allowing users to view, create, and filter issues.
+ */
 export default function Dashboard() {
     const [issues, setIssues] = useState([]);
     const [isCreateOpen, setIsCreateOpen] = useState(false);
     const [loading, setLoading] = useState(true);
 
-    // Filters
+    // Filter states
     const [statusFilter, setStatusFilter] = useState('All');
     const [priorityFilter, setPriorityFilter] = useState('All');
     const [searchQuery, setSearchQuery] = useState('');
@@ -73,7 +77,7 @@ export default function Dashboard() {
                     <input
                         type="text"
                         placeholder="Search issues..."
-                        className="w-full pl-9 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none"
+                        className="w-full pl-9 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none text-gray-900"
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                     />
@@ -81,7 +85,7 @@ export default function Dashboard() {
 
                 <div className="flex gap-3 w-full md:w-auto">
                     <select
-                        className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 outline-none w-full md:w-40"
+                        className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 outline-none w-full md:w-40 text-gray-900"
                         value={statusFilter}
                         onChange={(e) => setStatusFilter(e.target.value)}
                     >
@@ -92,7 +96,7 @@ export default function Dashboard() {
                     </select>
 
                     <select
-                        className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 outline-none w-full md:w-40"
+                        className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 outline-none w-full md:w-40 text-gray-900"
                         value={priorityFilter}
                         onChange={(e) => setPriorityFilter(e.target.value)}
                     >

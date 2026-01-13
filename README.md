@@ -19,6 +19,28 @@ The Smart Issue Board is a Jira-style issue tracker that allows teams to log, as
 - **Tailwind CSS**: Utility-first CSS framework enabling rapid UI development with a consistent, premium design system.
 - **Vercel**: Selected for zero-config global deployment and seamless integration with front-end frameworks.
 
+## 📂 Project Structure
+
+```bash
+src/
+├── components/          # Reusable UI components
+│   ├── CreateIssueForm.jsx  # Form with autocomplete
+│   ├── IssueCard.jsx        # Individual issue display
+│   ├── Layout.jsx           # Main app shell & nav
+│   └── PrivateRoute.jsx     # Route protection
+├── context/
+│   └── AuthContext.jsx  # Authentication state management
+├── pages/
+│   ├── Dashboard.jsx    # Main board view
+│   ├── Login.jsx        # Login page
+│   └── Signup.jsx       # Registration page
+├── services/
+│   ├── issueService.js  # Firestore CRUD for issues
+│   └── userService.js   # User management
+└── utils/
+    └── issueUtils.js    # Helper logic (duplicates, status)
+```
+
 ## 📂 Data Structure (Firestore)
 
 The application uses a single collection `issues` with the following document schema:
@@ -59,6 +81,13 @@ Strict workflow enforcement ensures data integrity:
 ### Duplicate Prevention
 **Challenge**: Detecting "similar" issues isn't just string equality.
 **Solution**: Implemented a keyword intersection algorithm purely on the client-side to provide instant feedback without heavy server-side search costs for this scale.
+
+### Enhanced Assignment Logic
+- **Goal**: Simplify assigning issues to team members.
+- **Solution**:
+    - **User Directory**: Automatically maintains a collection of all signed-up users in Firestore.
+    - **Smart Autocomplete**: The "Assigned To" field offers a dropdown of existing users but **also allows free-text entry** for external emails. This hybrid approach ensures flexibility while speeding up daily workflows.
+    - **Future-Proof**: Designed to be easily updated with more robust user profiles (avatars, roles) later.
 
 ## 🔮 Future Improvements
 1.  **Search**: Implement Algolia or Firestore Indexing for full-text search as the dataset grows.
