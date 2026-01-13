@@ -195,7 +195,7 @@ export default function CreateIssueForm({ existingIssues, onClose }) {
                                         .map(user => (
                                             <div
                                                 key={user.uid}
-                                                className="px-3 py-2 cursor-pointer hover:bg-gray-100"
+                                                className="px-3 py-2 cursor-pointer hover:bg-gray-100 text-gray-900"
                                                 onClick={() => {
                                                     setFormData({ ...formData, assignedTo: user.email });
                                                     setIsUserListOpen(false);
